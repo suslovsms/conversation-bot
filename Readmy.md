@@ -1,4 +1,5 @@
 # 🐳 Docker & PostgreSQL Шпаргалка
+docker-compose build && docker-compose up
 
 1. Остановить контейнеры (если они запущены)
 docker-compose down
@@ -7,7 +8,7 @@ docker-compose down
 docker system prune -af
 
 3. Пересобрать образы с нуля
-docker-compose build --no-cache
+docker-compose build --no-cache 
 
 4. Запустить контейнеры в фоне
 docker-compose up -d

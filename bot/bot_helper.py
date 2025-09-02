@@ -1,7 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from  app.services.openai_service import generate_answer
+from app.services.openai_service import generate_answer
 from telegram.constants import ChatAction
+from api.fast_api import get_user_id_by_telegram_id, save_message
+import asyncio
 
 async def get_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
      user_data = {
@@ -13,16 +15,25 @@ async def get_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
      return user_data
 
-
 async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         chat_id = update.effective_chat.id
         text = update.message.text
 
         await context.bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
+
         result_text = await generate_answer(text)
         await update.message.reply_text(result_text)
+
+        user_data = await get_data(update, context)
+        user_id = await get_user_id_by_telegram_id(user_data["telegram_id"])
+
+        # асинхронно сохраняем сообщение (не ждём записи)
+        asyncio.create_task(save_message(user_id, text, result_text))
 
     except Exception as e:
         print(f"Ошибка в message_handler: {e}")
         await update.message.reply_text("Произошла ошибка. Попробуй снова.")
+
+
+

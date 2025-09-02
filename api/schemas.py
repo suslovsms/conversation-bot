@@ -15,3 +15,22 @@ class LogCreate(BaseModel):
     source: str
     message: str
     user_id: Optional[str] = None
+
+class MessageCreate(BaseModel):
+    user_id: int
+    user_message: str
+    bot_response: str
+
+class MessageResponse(MessageCreate):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class UserOut(UserCreate):
+    id: int
+
+    class Config:
+        orm_mode = True

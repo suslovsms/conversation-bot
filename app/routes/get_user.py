@@ -7,7 +7,7 @@ from ..database import models
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/{telegram_id}", response_model=schemas.UserCreate)
+@router.get("/{telegram_id}", response_model=schemas.UserOut)
 async def get_user(telegram_id: str, db: AsyncSession = Depends(get_db)):
     q = await db.execute(select(models.User).where(models.User.telegram_id == telegram_id))
     user = q.scalar_one_or_none()

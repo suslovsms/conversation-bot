@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import create_user, logs, get_user
+from app.routes import create_user, logs, get_user, messages
 from app.database.models import Base
 from app.database.database import engine
 
@@ -13,3 +13,4 @@ async def startup():
 app.include_router(create_user.router)
 app.include_router(logs.router)
 app.include_router(get_user.router)
+app.include_router(messages.router)
