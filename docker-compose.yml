@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    healthcheck: # ✅ Добавлено, чтобы ждать готовность базы
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build:
@@ -22,7 +27,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy # ✅ Теперь ждёт пока db готова
     ports:
       - "8000:8000"
 
@@ -37,7 +43,5 @@ services:
     env_file:
       - .env
     depends_on:
-      - api
-
-volumes:
-  pgdata:
+      api:
+        condition: service_started # ✅ Явно указали условие (можно оставить по умолчанию)
