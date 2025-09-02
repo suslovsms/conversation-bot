@@ -1,0 +1,10 @@
+.env
+venv
+.promts
+AIBot.iml
+*.xml
+ postgres_data/
+ prompts/
+
+
+# OPENAI_API_KEY=sk-A8DBTI743AOKw2G5JxW8XQ

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+aiogram
+aiohttp
+sqlalchemy[asyncio]
+asyncpg
+pydantic-settings
+python-telegram-bot==22.3.0
+openai
+watchdog

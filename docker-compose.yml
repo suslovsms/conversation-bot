@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: astrodb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api
+    command: watchmedo auto-restart --directory=/code --pattern="*.py" --recursive -- uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: bot
+    command: watchmedo auto-restart --directory=/code --pattern=*.py --recursive -- python -u -m bot.bot
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
