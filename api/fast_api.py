@@ -11,7 +11,6 @@ async def add_user(update: Update, user_data):
             else:
                 await update.message.reply_text("Error")
 
-
 async def add_logs(level, source, message, user_id):
     log_data = {
         "user_id": user_id,
@@ -28,3 +27,9 @@ async def add_logs(level, source, message, user_id):
     except Exception as e:
         print("Failed to log to DB:", e)
         print(traceback.format_exc())
+
+
+async def check_user_exists(telegram_id: str) -> bool:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{settings.API_URL}/users/{telegram_id}") as resp:
+            return resp.status == 200

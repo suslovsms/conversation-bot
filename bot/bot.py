@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Messa
 from app.config import settings
 from bot.bot_helper import get_data, process_message
 from bot.decorators.decorators import log_command
-from api.fast_api import add_user
+from api.fast_api import add_user,check_user_exists
 
 
 @log_command("/start")
@@ -15,6 +15,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @log_command()
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_data = await get_data(update, context)
+
+    if not await check_user_exists(user_data["telegram_id"]):
+        await update.message.reply_text("Сначала нажми /start, чтобы зарегистрироваться 😊")
+        return
+
     await process_message(update, context)
 
 
