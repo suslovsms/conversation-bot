@@ -8,6 +8,12 @@ class UserCreate(BaseModel):
     username: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
+    gender: Optional[str] = None
+
+
+class UserUpdate(BaseModel):
+    gender: Optional[str]
+
 
 class LogCreate(BaseModel):
     timestamp: Optional[datetime] = None
@@ -16,21 +22,22 @@ class LogCreate(BaseModel):
     message: str
     user_id: Optional[str] = None
 
+
 class MessageCreate(BaseModel):
     user_id: int
     user_message: str
     bot_response: str
 
+
 class MessageResponse(MessageCreate):
     id: int
     timestamp: datetime
-
     class Config:
         orm_mode = True
 
 
 class UserOut(UserCreate):
     id: int
-
+    gender: Optional[str]
     class Config:
         orm_mode = True

@@ -12,9 +12,9 @@ class User(Base):
     username = Column(String)
     first_name = Column(String)
     last_name = Column(String)
-
     is_premium = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    gender = Column(String, nullable=True)
 
 class Log(Base):
     __tablename__ = "logs"
@@ -32,5 +32,4 @@ class Message(Base):
     user_message = Column(Text, nullable=False)
     bot_response = Column(Text, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
-
     user = relationship("User")

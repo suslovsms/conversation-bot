@@ -28,10 +28,12 @@ async def add_logs(level, source, message, user_id):
         print("Failed to log to DB:", e)
         print(traceback.format_exc())
 
+
 async def check_user_exists(telegram_id: str) -> bool:
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{settings.API_URL}/users/{telegram_id}") as resp:
             return resp.status == 200
+
 
 async def save_message(user_id: int, user_message: str, bot_response: str):
     payload = {
@@ -60,3 +62,15 @@ async def get_user_id_by_telegram_id(telegram_id: str) -> int:
                 print("DEBUG: /users response without id:", data)
                 raise Exception("User record returned without id")
             raise Exception("User not found")
+
+
+async def update_gender_in_db(telegram_id: str, gender: str):
+    async with aiohttp.ClientSession() as session:
+        url = f"{settings.API_URL}/users/{telegram_id}/gender"
+        payload = {"gender": gender}
+        async with session.put(url, json=payload) as resp:
+            if resp.status in (200, 201):
+                return await resp.json()
+            else:
+                error_text = await resp.text()
+                raise Exception(f"Ошибка обновления gender: {resp.status}, {error_text}")

@@ -12,7 +12,6 @@ def log_command(command_name: str = None):
             user_data = await get_data(update, context)
 
             try:
-                # Логируем только команды (или явно переданное имя)
                 if command_name or (update.message and update.message.text.startswith("/")):
                     log_text = command_name or update.message.text
                     await add_logs(
