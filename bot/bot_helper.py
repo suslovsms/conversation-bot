@@ -36,9 +36,8 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data["gender"] = gender
 
     if gender is None:
-        await update.message.reply_text("Сначала выбери свой пол, чтобы продолжить.")
         await update.message.reply_text(
-            "Выбери себе персонажа:", reply_markup=InlineKeyboardMarkup(keyboard)
+            "С кем ты желаешь пообщаться?:", reply_markup=InlineKeyboardMarkup(keyboard)
         )
         return
 
@@ -53,18 +52,22 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     asyncio.create_task(save_message(user_id, text, result_text))
 
 
-@log_api_exceptions("bot")  # 👈 ловим ошибки этого хендлера
+@log_api_exceptions("bot")
 async def gender_btn_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
     if query.data.startswith("gender_"):
         gender = query.data.replace("gender_", "")
-        await query.edit_message_text(text=f"Ты выбрал: {gender.capitalize()}")
 
-        # 👇 сохраняем выбор в БД
+        await query.edit_message_reply_markup(reply_markup=None)
+
         await update_gender_in_db(str(query.from_user.id), gender)
 
-        # 👇 обновляем кэш
         context.user_data["gender"] = gender
-        print(f"[CACHE UPDATE] gender обновлён в кэше: {gender}")
+        if "gender_msg_id" in context.user_data:
+            context.user_data.pop("gender_msg_id")
+
+        await query.message.reply_text("Ну что, погнали? 🚀\n\n Напиши мне что нибудь 😏")
+
+
