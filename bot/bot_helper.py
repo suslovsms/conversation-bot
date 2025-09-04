@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from app.services.openai_service import generate_answer
 from telegram.constants import ChatAction
-from api.fast_api import get_user_id_by_telegram_id, save_message,update_gender_in_db
+from api.fast_api import get_user_id_by_telegram_id, save_message,update_gender_in_db, get_user_gender
 import asyncio
 
 async def get_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -23,7 +23,13 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await context.bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
 
-        result_text = await generate_answer(text)
+        gender = context.user_data.get("gender")
+
+        if gender is None:
+            gender = await get_user_gender(str(update.effective_user.id))
+            context.user_data["gender"] = gender  # кэшируем
+
+        result_text = await generate_answer(text, gender=gender)
         await update.message.reply_text(result_text)
 
         user_data = await get_data(update, context)
@@ -45,8 +51,10 @@ async def gender_btn_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
             gender = query.data.replace("gender_", "")
             await query.edit_message_text(text=f"Ты выбрал: {gender.capitalize()}")
 
-            # Обновление гендера через API
             await update_gender_in_db(str(query.from_user.id), gender)
+
+            context.user_data["gender"] = gender
+            print(f"[CACHE UPDATE] gender обновлён в кэше: {gender}")  # 👈 лог
 
         except Exception as e:
             print(f"Ошибка в gender_btn_callback: {e}")

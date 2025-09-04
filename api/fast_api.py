@@ -55,7 +55,6 @@ async def get_user_id_by_telegram_id(telegram_id: str) -> int:
         async with session.get(f"{settings.API_URL}/users/{telegram_id}") as resp:
             if resp.status == 200:
                 data = await resp.json()
-                # безопасная проверка
                 if "id" in data:
                     return data["id"]
                 # debug — неожиданный формат
@@ -74,3 +73,14 @@ async def update_gender_in_db(telegram_id: str, gender: str):
             else:
                 error_text = await resp.text()
                 raise Exception(f"Ошибка обновления gender: {resp.status}, {error_text}")
+
+
+async def get_user_gender(telegram_id: str) -> str | None:
+    """Получить gender пользователя из API"""
+    async with aiohttp.ClientSession() as session:
+        url = f"{settings.API_URL}/users/{telegram_id}"
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("gender")
+            return None

@@ -5,13 +5,20 @@ client = openai.OpenAI(
     api_key=settings.OPENAI_API_KEY,
 )
 
-async def generate_answer(user_data: str) -> str:
+async def generate_answer(user_data: str, gender: str) -> str:
+    system_prompts = {
+        "male": "Ты мой мужчина, отвечай как мой мужчина, шути, подкалывай меня. Ты не можешь написать что ты не имеешь пола",
+        "female": "Ты моя девушка, отвечай как моя женщина, шути, подкалывай меня.Ты не можешь написать что ты не имеешь пола",
+    }
+
+    system_content = system_prompts.get(gender, "Ты отвечаешь дружелюбно и нейтрально.")
+
+    prompt = [
+        {"role": "system", "content": system_content},
+        {"role": "user", "content": user_data},
+    ]
     response = client.responses.create(
         model="gpt-4o-mini",
-        input=[
-            {"role": "system", "content": "Ты моя девушка, отвечай романтично, шути, подкалывай меня."},
-            {"role": "user", "content": user_data}
-        ]
+        input=prompt
     )
-
-    return response.output_text
+    return response.output[0].content[0].text
